@@ -1,4 +1,4 @@
-# Compte-rendu — TP RAG Films
+# Compte-rendu — TP RAG Films TMDB
 
 ## Choix du sujet
 
@@ -32,22 +32,24 @@ La recommandation de film est une tâche subjective : il n'y a pas une seule bon
 
 ## Difficultés rencontrées
 
-**1. Qualité variable des synopses :**  
-Certains films du dataset ont des synopses très courts ("No overview available") ou absents. Le filtrage `dropna(subset=["overview"])` et `vote_count >= 50` élimine les films trop peu documentés, ce qui améliore la qualité des recommandations sans réduire significativement le corpus (on reste largement au-dessus des 500 films requis).
+**1. Installation des dépendances :** Erreur `ModuleNotFoundError: No module named 'numpy'` au premier lancement car les dépendances n'étaient pas installées dans l'environnement virtuel. Résolu avec `pip install -r requirements.txt`.
 
-**2. Filtre langue sur un petit corpus :**  
-Avec seulement ~500 films en VO française dans la base, activer `langue fr` peut retourner peu de résultats. La recherche est élargie (`k * 4`) avant application du filtre pour maximiser les chances de trouver des films correspondants. Si le filtre réduit trop les résultats, un message avertit l'utilisateur.
+**2. Dataset TMDB introuvable :** Le zip Kaggle portait le nom `archive (1).zip`, pas évident à identifier. Extrait avec `tar -xf "archive (1).zip" -C data\`.
 
-**3. Reformulation en anglais (Bonus C) :**  
-Les questions des utilisateurs sont en français, mais la base est en anglais. La reformulation (Bonus C) est donc doublement utile : elle traduit implicitement en anglais ET extrait les mots-clés pertinents pour la recherche TMDB. Sans cette étape, une question comme "film d'animation familial" donnerait de moins bons résultats qu'avec les mots-clés "family animation children adventure".
+**3. Clé API mal configurée :** Le fichier `.env` contenait la clé brute sans le préfixe `GROQ_API_KEY=`, empêchant `python-dotenv` de la charger. Résolu en ajoutant le préfixe.
 
-**4. Correspondance titre exact (Bonus D) :**  
-Pour le mode comparaison, si l'utilisateur saisit un titre avec une orthographe légèrement différente (majuscules, articles...), la recherche vectorielle retrouve quand même le bon film grâce à la similarité sémantique. Ce n'est pas une recherche exacte par titre mais une recherche par sens, ce qui est plus robuste.
+**4. Modèle Groq décommissionné :** Erreur `llama3-8b-8192 has been decommissioned` au premier test. Remplacé par `llama-3.1-8b-instant`.
+
+**5. Clé API bloquée par GitHub :** GitHub Push Protection a bloqué le push car un fichier `.env.txt` avec la clé était dans l'historique Git. Solution : suppression de l'historique avec `Remove-Item -Recurse -Force .git`, recréation d'un repo propre et nouveau `git init`.
 
 ---
 
-## Ce qui fonctionnerait mieux avec plus de temps
+## Décisions de conception
 
-- Intégrer les données de casting (`tmdb_5000_credits.csv`) dans le texte embeddé pour répondre à des requêtes comme "films avec Tom Hanks".
-- Implémenter un filtre par note minimale (ex: "uniquement les films notés > 7") via les métadonnées post-recherche.
-- Ajouter les affiches de films via l'API TMDB dans une interface Gradio/Streamlit.
+- **Transformation CSV → texte :** `convertir_film_en_texte()` assemble titre, genres, synopsis, note, langue et mots-clés. Le synopsis est la colonne centrale car la plus riche sémantiquement.
+- **Parsing JSON :** `ast.literal_eval()` utilisé à la place de `json.loads()` car certaines entrées TMDB utilisent des guillemets simples Python.
+- **Persistance :** Vérification de l'existence de `index/films.index` au démarrage pour éviter une réindexation de 10 minutes à chaque test.
+- **Modèle embedding :** `all-mpnet-base-v2` (anglophone) choisi car le dataset TMDB est entièrement en anglais.
+- **Index FAISS :** `IndexFlatIP` + normalisation L2 = similarité cosinus. Score élevé = plus pertinent.
+- **Température LLM :** 0.6 (plus élevée que pour un assistant factuel) car la recommandation est subjective.
+- **Bonus implémentés :** Historique (A), score de confiance (B), reformulation automatique (C), mode comparaison (D).
