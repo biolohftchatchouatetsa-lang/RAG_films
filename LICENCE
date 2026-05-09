@@ -1,0 +1,21 @@
+LICENCE MIT (Traduction française)
+
+Copyright (c) 2026 biolohftchatchouatetsa-lang
+
+La permission est accordée, gratuitement, à toute personne obtenant une copie
+de ce logiciel et des fichiers de documentation associés (le "Logiciel"), de
+traiter le Logiciel sans restriction, notamment les droits d'utiliser, copier,
+modifier, fusionner, publier, distribuer, accorder des sous-licences et/ou
+vendre des copies du Logiciel.
+
+LE LOGICIEL EST FOURNI "TEL QUEL", SANS GARANTIE D'AUCUNE SORTE.
+
+---
+
+Licences des outils utilisés :
+- Groq API : https://groq.com/terms-of-service
+- FAISS : Licence MIT (Meta)
+- Sentence-Transformers : Licence Apache 2.0
+- Modèle all-mpnet-base-v2 : Licence Apache 2.0
+- Dataset TMDB : https://www.themoviedb.org/api-terms-of-use
+- LLaMA 3 : Licence Meta LLaMA 3 Community License
