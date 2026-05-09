@@ -1,32 +1,23 @@
 # 🎬 Assistant Recommandation Films — RAG de bout en bout
 
 Sujet A du TP — Construire un RAG avec Python et Groq  
-**Dataset :** TMDB 5000 Movie Dataset (Kaggle)
+Dataset : TMDB 5000 Movie Dataset
 
 ---
 
 ## Démarrage rapide
 
 ```bash
-# 1. Environnement virtuel
 python -m venv venv
-source venv/bin/activate        # Linux/Mac
-# venv\Scripts\activate         # Windows
+source venv/bin/activate        
 
-# 2. Dépendances
 pip install -r requirements.txt
 
-# 3. Télécharger le dataset TMDB
-#    → kaggle.com/datasets/tmdb/tmdb-movie-metadata
-#    → Placer tmdb_5000_movies.csv dans data/
 
-# 4. Clé API Groq (console.groq.com)
 echo "GROQ_API_KEY=votre_clé_ici" > .env
 
-# 5. Indexation (une seule fois, ~5 min)
 python indexation.py
 
-# 6. Lancement
 python rag.py
 ```
 
@@ -46,7 +37,6 @@ tmdb_5000_movies.csv
     │
     ▼  chunker_documents()
     │  taille_max=800, overlap=100
-    │  (la plupart des fiches < 800 chars → 1 chunk par film)
     │
     ▼  SentenceTransformer("all-mpnet-base-v2")
     │  → vecteurs 768 dimensions
@@ -122,9 +112,8 @@ Le dataset TMDB couvre jusqu'à 2017. Le prompt système instruit le LLM d'infor
 
 `IndexFlatIP` + normalisation L2 = similarité cosinus. Un film peu connu mais parfaitement aligné thématiquement sera bien classé même si sa note est faible.
 
-### Filtre par langue
 
-Contrainte spécifique du sujet A. L'utilisateur peut restreindre aux films en VO française (`langue fr`) ou internationale (`langue inter`) via les métadonnées `original_language` du CSV.
+Contrainte spécifique du sujet A. L'utilisateur peut restreindre aux films en VO française ou internationale via les métadonnées du CSV.
 
 ---
 
